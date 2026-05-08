@@ -3,26 +3,28 @@
 ## Case Introduction
 ADB Safegate's airfield lighting fixtures operate in some of the harshest environments imaginable. They are routinely exposed to aircraft jet blast, ground vehicle impacts, thermal cycling, moisture ingress, and continuous vibration. Over time, these stresses produce structural fatigue, corrosion, mounting wear, and physical damage — any of which can render a fixture a safety hazard before it fails outright.
 
-Today, structural condition is largely confirmed reactively — through physical inspection or after a failure occurs. The company wants to move toward **proactive structural monitoring**: surfacing early warning signs of mechanical compromise so they can be addressed before becoming operational risks.
+Today, structural condition is largely confirmed reactively — through physical inspection or after a failure occurs. The company wants to move toward **proactive structural monitoring**: catching mechanical compromise early so it can be addressed before becoming an operational risk.
 
-The catch is that ADB Safegate does not yet stream dedicated structural sensor data (vibration, tilt, load) into the cloud. What is available is the operational telemetry already coming from Axon EQ fixtures — boostVoltage, inputCurrent, brownout alarms (alarmRemoteBrownout), board faults, lastSeen, responseRate, stale flags, and so on. These signals carry **indirect** information about physical state:
+To make this possible, ADB Safegate is developing a **dedicated sensor board** that mounts inside each fixture and continuously monitors structural state via 3-axis vibration sensing. The hackathon dataset is from the lab characterization of this sensor board — a controlled acoustic excitation rig where a subwoofer plays known frequency sweeps into a test fixture while 15 sensor boards record the resulting vibration response at 27 kHz. Different excitation patterns were tested (different frequency bands, with some tests playing two excitation sweeps simultaneously) under three controlled bolt conditions:
 
-* Sudden changes in inputCurrent or boostVoltage following a weather or operational event may indicate a physical disturbance
-* Spike patterns in brownout alarms could correlate with mounting or cable integrity issues
-* Persistent stale or unresponsive fixtures may indicate physical disconnection rather than electronic failure
-* Alarm clusters cross-referenced with geography or fixture type could surface structural hotspots ➤ Simply put: the telemetry you have was not designed to observe structural events — but signatures of those events may still be hiding inside it. Your job is to find them.
+* **Run A — 30 NM** (clean baseline, all bolts torqued to spec)
+* **Run B — Loose** (bolts in a loosened state)
+* **Run C — Mix-45 Deg** (bolts loosened by 45° from torqued spec)
+
+Each test produces a brief snapshot of the fixture's vibration response — 8,192 samples (~303 ms) per sensor board per test. Test conditions, excitation parameters, and bolt status for every recording are captured in a master `Test.csv` metadata file accompanying the dataset. ➤ Simply put: the data tells you how the fixture *responds* to known vibration, under three known mounting conditions. Your job is to figure out what that response actually says about structural state.
 
 ## The Challenge
-Your mission: From existing operational telemetry alone, identify fixtures showing signs of structural degradation or impact events — before physical inspection confirms it.
+Your mission: Using the labeled vibration data, build a structural fault classifier that distinguishes between a healthy fixture and the two fault conditions — and rigorously characterize where it works, where it breaks down, and what would be needed to take it from a lab benchmark toward a deployable monitoring capability.
 
-You will work with telemetry from Axon EQ fixtures and must build a solution that can:
+You will work with the controlled-test vibration data from the sensor board characterization rig and must build a solution that can:
 
-✅ Identify fixtures exhibiting telemetry patterns consistent with structural stress, damage, or impact — and articulate what a "structural event signature" looks like in the data
-✅ Justify why your chosen signals are meaningful proxies for physical condition (engineering reasoning, not just statistical correlation)
-✅ Provide a clear gap analysis — what existing telemetry is genuinely useful, what is unreliable, and what additional data (vibration, tilt, load, environmental) would be needed to lift detection to a more rigorous level, including a proposed minimum viable sensor dataset
-✅ Demonstrate or sketch how detections would surface to a service engineer in a way they could act on
+✅ Distinguish between the three labeled bolt conditions (30 NM, Loose, Mix-45 Deg) from the 3-axis vibration response, with a clearly described methodology
+✅ Justify your feature engineering and classifier logic from physics-based reasoning about how mechanical resonance, damping, and modal response change when fixture mounting is compromised — not just statistical correlation
+✅ Make meaningful use of the experimental structure of the dataset — the multiple excitation patterns, the parallel sensor boards on each test, and the replicate captures — both when training and when evaluating your model
+✅ Honestly characterize how well your classifier generalizes across excitation patterns and replicates, and identify which excitation patterns and sensor channels carry the strongest discriminative signal
+✅ Provide a clear gap analysis — what about this lab dataset is and isn't representative of what an in-fixture sensor board would see in deployed conditions, and what additional data would be needed to evolve this into a deployable monitoring capability
 
-**Out of scope:** Confirming structural events with absolute certainty in the absence of dedicated sensors. Your detector will produce probabilistic indicators, not verified findings — and that is fine. What matters is that the indicators are defensible and useful as a triage signal.
+**Out of scope:** Predicting time-to-failure, detecting fault types not represented in the dataset, or claiming deployment-grade accuracy from controlled lab data alone. This is a benchmark — your goal is to characterize what is and isn't learnable from it, not to ship a production model.
 
 ## Bonus Track: From Algorithm to Product
 *(Optional — additional points)*
@@ -46,11 +48,12 @@ A reactive approach to structural integrity at airport scale carries real cost:
 * **Inspection burden** — without prioritisation, structural inspections are blanket and time-consuming; targeted inspection is far more efficient
 * **Asset planning** — knowing which fixtures are degrading helps the company forecast replacement budgets across an airport's lifecycle
 
-Even an imperfect, indirect indicator of structural risk gives ADB Safegate two valuable things: a triage tool that points engineers at the fixtures most worth inspecting first, and a concrete specification for the structural sensing investment that would make full monitoring possible.
+An effective in-fixture vibration-based monitoring capability gives ADB Safegate something fundamentally new: continuous structural awareness without dispatching anyone to inspect anything. This dataset is the validation foundation for that capability — evidence that the signal the sensor board picks up actually carries the structural information the product strategy is built on.
 
 ## Judging Focus
-* **Quality of detection logic** — is the link between telemetry patterns and structural events defensible from engineering reasoning, or speculative? Are the chosen signals meaningful proxies for physical condition?
-* **Rigour given indirect data** — without ground truth from dedicated structural sensors, what does the team do to make their detector credible? Sensitivity checks, controlled comparisons across fixtures, sanity tests, and reasoning about false positives all count here.
-* **Specificity of the gap analysis** — does the team clearly distinguish what their detector can and cannot tell from existing data, and articulate what additional sensing would lift its reliability — concretely, not generically?
-* **Usefulness of the engineer-facing output** — would a service engineer be able to act on the result, or does it still require interpretation that hasn't been done?
+* **Quality of feature engineering and classifier logic** — does the team's approach reflect how mechanical resonance and damping change when a fixture's mounting is compromised? Are FFT, modal, or other physics-grounded transformations applied thoughtfully, or is the time series being treated as a black box?
+* **Use of experimental structure** — does the team meaningfully exploit the multiple excitation patterns, the parallel sensor boards, and the replicate captures? Or has the data been flattened in a way that throws away the experimental design?
+* **Generalization rigor** — are train/test splits set up to genuinely test whether the classifier generalizes (e.g. to unseen excitation patterns, unseen sensor boards, unseen replicates)? Or is the reported accuracy an artifact of leakage?
+* **Excitation and channel insight** — has the team identified which excitation patterns and sensor channels carry the strongest discriminative signal, and articulated *why* — what about those frequency bands or axes makes them informative for this fault type?
+* **Specificity of the gap analysis** — does the team clearly distinguish what is learnable from this lab dataset and what isn't, and concretely articulate what additional data would be needed for real-world deployment?
 * **Bonus — Commercial coherence** *(stretch)* — does the team's commercialization strategy, pricing, and value articulation hang together as a credible CORTEX Service offering, driven by how customers would actually want to use the product?

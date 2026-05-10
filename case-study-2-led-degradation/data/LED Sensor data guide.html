@@ -1,0 +1,1502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AXON EQ — Data Taxonomy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=DM+Sans:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy: #013D5B;
+    --navy-deep: #00293D;
+    --navy-mid: #01527A;
+    --navy-light: #1a6b8f;
+    --orange: #ED7324;
+    --orange-light: #f5914d;
+    --orange-pale: rgba(237,115,36,0.12);
+    --white: #ffffff;
+    --off-white: #F4F2EE;
+    --text: #e8e4dc;
+    --text-muted: #8b9fad;
+    --text-dim: #506b7a;
+    --border: rgba(255,255,255,0.08);
+    --border-bright: rgba(255,255,255,0.15);
+    --card-bg: rgba(255,255,255,0.04);
+    --card-hover: rgba(255,255,255,0.07);
+    --surface: rgba(0,0,0,0.2);
+
+    --alarm: #e05252;
+    --alarm-bg: rgba(224,82,82,0.1);
+    --alarm-border: rgba(224,82,82,0.25);
+    --warning: #e8a83a;
+    --warning-bg: rgba(232,168,58,0.1);
+    --warning-border: rgba(232,168,58,0.25);
+    --conn: #4ab8d8;
+    --conn-bg: rgba(74,184,216,0.1);
+    --conn-border: rgba(74,184,216,0.25);
+    --wave: #5dd6a0;
+    --wave-bg: rgba(93,214,160,0.1);
+    --wave-border: rgba(93,214,160,0.25);
+    --elec: #7db8f5;
+    --elec-bg: rgba(125,184,245,0.1);
+    --elec-border: rgba(125,184,245,0.25);
+    --failsafe: #d470c8;
+    --failsafe-bg: rgba(212,112,200,0.1);
+    --failsafe-border: rgba(212,112,200,0.25);
+    --version: #8b9fad;
+    --version-bg: rgba(139,159,173,0.1);
+    --version-border: rgba(139,159,173,0.2);
+    --liveness: var(--orange);
+    --liveness-bg: var(--orange-pale);
+    --liveness-border: rgba(237,115,36,0.3);
+
+    --sensor-temp: #f97c5a;
+    --sensor-temp-bg: rgba(249,124,90,0.1);
+    --sensor-temp-border: rgba(249,124,90,0.25);
+    --sensor-motion: #a78bfa;
+    --sensor-motion-bg: rgba(167,139,250,0.1);
+    --sensor-motion-border: rgba(167,139,250,0.25);
+    --sensor-env: #34d399;
+    --sensor-env-bg: rgba(52,211,153,0.1);
+    --sensor-env-border: rgba(52,211,153,0.25);
+    --sensor-power: #fbbf24;
+    --sensor-power-bg: rgba(251,191,36,0.1);
+    --sensor-power-border: rgba(251,191,36,0.25);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background-color: var(--navy-deep);
+    background-image:
+      radial-gradient(ellipse 80% 60% at 50% -10%, rgba(1,82,122,0.5) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 40% at 90% 80%, rgba(237,115,36,0.06) 0%, transparent 60%);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ─────────────────────────────────── */
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    padding: 0 2rem;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(0,23,35,0.85);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--white);
+    text-decoration: none;
+  }
+
+  .logo-dot {
+    width: 8px; height: 8px;
+    background: var(--orange);
+    border-radius: 50%;
+    animation: pulse-dot 2.4s ease-in-out infinite;
+  }
+
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.7); }
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .header-badge {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 500;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    padding: 4px 10px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+  }
+
+  /* ── HERO ──────────────────────────────────── */
+  .hero {
+    padding: 72px 2rem 56px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .hero-eyebrow {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 500;
+    font-size: 12px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--orange);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .hero-eyebrow::before {
+    content: '';
+    display: block;
+    width: 24px; height: 1px;
+    background: var(--orange);
+  }
+
+  h1 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: clamp(40px, 6vw, 72px);
+    line-height: 1;
+    letter-spacing: -0.01em;
+    color: var(--white);
+    margin-bottom: 20px;
+  }
+
+  h1 span { color: var(--orange); }
+
+  .hero-sub {
+    font-size: 16px;
+    color: var(--text-muted);
+    max-width: 580px;
+    margin-bottom: 40px;
+    line-height: 1.7;
+  }
+
+  .hero-stats {
+    display: flex;
+    gap: 32px;
+    flex-wrap: wrap;
+    padding-top: 32px;
+    border-top: 1px solid var(--border);
+  }
+
+  .stat {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .stat-num {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 36px;
+    line-height: 1;
+    color: var(--white);
+  }
+
+  .stat-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+  }
+
+  /* ── FILTER BAR ───────────────────────────── */
+  .filter-bar {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 2rem 32px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .filter-label {
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
+    margin-right: 4px;
+  }
+
+  .filter-btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.18s;
+    white-space: nowrap;
+  }
+
+  .filter-btn:hover {
+    border-color: var(--border-bright);
+    color: var(--text);
+  }
+
+  .filter-btn.active {
+    background: var(--orange);
+    border-color: var(--orange);
+    color: var(--white);
+  }
+
+  /* ── SEARCH ───────────────────────────────── */
+  .search-wrap {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 2rem 32px;
+  }
+
+  .search-input {
+    width: 100%;
+    max-width: 380px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 16px 10px 40px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none'%3E%3Ccircle cx='7' cy='7' r='4.5' stroke='%23506b7a' stroke-width='1.2'/%3E%3Cline x1='10.5' y1='10.5' x2='14' y2='14' stroke='%23506b7a' stroke-width='1.2' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: 14px center;
+  }
+
+  .search-input:focus { border-color: var(--border-bright); }
+  .search-input::placeholder { color: var(--text-dim); }
+
+  /* ── MAIN CONTENT ─────────────────────────── */
+  main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 2rem 80px;
+  }
+
+  /* ── SECTION ──────────────────────────────── */
+  .section {
+    margin-bottom: 56px;
+    transition: opacity 0.2s;
+  }
+
+  .section.hidden { display: none; }
+
+  .section-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-icon {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 18px;
+  }
+
+  .section-meta { flex: 1; }
+
+  .section-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 22px;
+    letter-spacing: 0.02em;
+    color: var(--white);
+    margin-bottom: 3px;
+  }
+
+  .section-desc {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  .section-count {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 28px;
+    color: var(--text-dim);
+    flex-shrink: 0;
+    align-self: center;
+  }
+
+  /* ── CARDS ────────────────────────────────── */
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 8px;
+  }
+
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: background 0.18s, border-color 0.18s, transform 0.15s;
+    position: relative;
+    overflow: hidden;
+    animation: card-in 0.4s ease both;
+  }
+
+  @keyframes card-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: none; }
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px; height: 100%;
+    border-radius: 10px 0 0 10px;
+    opacity: 0;
+    transition: opacity 0.18s;
+  }
+
+  .card:hover {
+    background: var(--card-hover);
+    border-color: var(--border-bright);
+    transform: translateY(-1px);
+  }
+
+  .card:hover::before { opacity: 1; }
+
+  .card.card-filtered-out {
+    display: none;
+  }
+
+  .card-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--white);
+    margin-bottom: 4px;
+    word-break: break-word;
+  }
+
+  .card-raw {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+  }
+
+  .card-desc {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.5;
+    margin-bottom: 10px;
+  }
+
+  .badge-row { display: flex; gap: 6px; flex-wrap: wrap; }
+
+  .badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 500;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-family: 'Barlow Condensed', sans-serif;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .badge-bool { background: rgba(232,168,58,0.15); color: #e8a83a; }
+  .badge-float { background: rgba(74,184,216,0.15); color: #4ab8d8; }
+  .badge-int { background: rgba(93,214,160,0.15); color: #5dd6a0; }
+  .badge-string { background: rgba(139,159,173,0.12); color: #8b9fad; }
+
+  /* ── SECTION-SPECIFIC ACCENT COLORS ─────── */
+  [data-section="alarms"] .card::before { background: var(--alarm); }
+  [data-section="alarms"] .section-icon { background: var(--alarm-bg); border: 1px solid var(--alarm-border); }
+  [data-section="alarms"] .section-title { color: #ff8a8a; }
+
+  [data-section="warnings"] .card::before { background: var(--warning); }
+  [data-section="warnings"] .section-icon { background: var(--warning-bg); border: 1px solid var(--warning-border); }
+  [data-section="warnings"] .section-title { color: #f0c055; }
+
+  [data-section="connectivity"] .card::before { background: var(--conn); }
+  [data-section="connectivity"] .section-icon { background: var(--conn-bg); border: 1px solid var(--conn-border); }
+  [data-section="connectivity"] .section-title { color: #6ecde8; }
+
+  [data-section="wave"] .card::before { background: var(--wave); }
+  [data-section="wave"] .section-icon { background: var(--wave-bg); border: 1px solid var(--wave-border); }
+  [data-section="wave"] .section-title { color: #7dedb8; }
+
+  [data-section="electrical"] .card::before { background: var(--elec); }
+  [data-section="electrical"] .section-icon { background: var(--elec-bg); border: 1px solid var(--elec-border); }
+  [data-section="electrical"] .section-title { color: #9fceff; }
+
+  [data-section="failsafe"] .card::before { background: var(--failsafe); }
+  [data-section="failsafe"] .section-icon { background: var(--failsafe-bg); border: 1px solid var(--failsafe-border); }
+  [data-section="failsafe"] .section-title { color: #e899e0; }
+
+  [data-section="versions"] .card::before { background: var(--version); }
+  [data-section="versions"] .section-icon { background: var(--version-bg); border: 1px solid var(--version-border); }
+
+  [data-section="liveness"] .card::before { background: var(--liveness); }
+  [data-section="liveness"] .section-icon { background: var(--liveness-bg); border: 1px solid var(--liveness-border); }
+  [data-section="liveness"] .section-title { color: #f5914d; }
+
+  [data-section="sensor-temperature"] .card::before { background: var(--sensor-temp); }
+  [data-section="sensor-temperature"] .section-icon { background: var(--sensor-temp-bg); border: 1px solid var(--sensor-temp-border); }
+  [data-section="sensor-temperature"] .section-title { color: #fda98a; }
+
+  [data-section="sensor-motion"] .card::before { background: var(--sensor-motion); }
+  [data-section="sensor-motion"] .section-icon { background: var(--sensor-motion-bg); border: 1px solid var(--sensor-motion-border); }
+  [data-section="sensor-motion"] .section-title { color: #c4b5fd; }
+
+  [data-section="sensor-environment"] .card::before { background: var(--sensor-env); }
+  [data-section="sensor-environment"] .section-icon { background: var(--sensor-env-bg); border: 1px solid var(--sensor-env-border); }
+  [data-section="sensor-environment"] .section-title { color: #6ee7b7; }
+
+  [data-section="sensor-power"] .card::before { background: var(--sensor-power); }
+  [data-section="sensor-power"] .section-icon { background: var(--sensor-power-bg); border: 1px solid var(--sensor-power-border); }
+  [data-section="sensor-power"] .section-title { color: #fcd34d; }
+
+  .dataset-divider { max-width: 1100px; margin: 0 auto 48px; padding: 0 2rem; }
+  .dataset-divider-inner {
+    display: flex; align-items: center; gap: 16px;
+    padding: 20px 24px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--sensor-env);
+    border-radius: 10px;
+  }
+  .dataset-divider-icon { font-size: 22px; flex-shrink: 0; }
+  .dataset-divider-label {
+    font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 18px;
+    letter-spacing: 0.04em; color: var(--white); text-transform: uppercase; margin-bottom: 2px;
+  }
+  .dataset-divider-sub { font-size: 12px; color: var(--text-muted); }
+  .dataset-divider-badge {
+    margin-left: auto;
+    font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 600;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 4px 10px; border-radius: 4px;
+    background: var(--sensor-env-bg); color: #6ee7b7; border: 1px solid var(--sensor-env-border);
+    white-space: nowrap;
+  }
+  .badge-minmax { background: rgba(167,139,250,0.12); color: #c4b5fd; }
+  .card-triplet-hint {
+    font-size: 10px; color: var(--text-dim); margin-top: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    border-top: 1px solid var(--border); padding-top: 6px;
+  }
+
+  /* ── TOOLTIP ──────────────────────────────── */
+  #tooltip {
+    position: fixed;
+    z-index: 999;
+    pointer-events: none;
+    display: none;
+    max-width: 280px;
+    background: rgba(0, 23, 35, 0.97);
+    border: 1px solid var(--border-bright);
+    border-radius: 10px;
+    padding: 14px 16px;
+  }
+
+  .tt-raw {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--orange);
+    margin-bottom: 8px;
+  }
+
+  .tt-sample {
+    font-size: 11px;
+    color: var(--conn);
+    margin-bottom: 8px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .tt-desc {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.55;
+  }
+
+  /* ── EMPTY STATE ──────────────────────────── */
+  #empty-state {
+    display: none;
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-dim);
+  }
+
+  #empty-state p { font-size: 16px; margin-bottom: 8px; color: var(--text-muted); }
+  #empty-state span { font-size: 13px; }
+
+  /* ── FOOTER ───────────────────────────────── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 24px 2rem;
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-dim);
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  footer strong { color: var(--text-muted); }
+
+  /* ── RESPONSIVE ───────────────────────────── */
+  @media (max-width: 640px) {
+    .hero { padding: 48px 1.25rem 40px; }
+    .filter-bar, .search-wrap, main { padding-left: 1.25rem; padding-right: 1.25rem; }
+    .cards { grid-template-columns: 1fr 1fr; }
+    h1 { font-size: 36px; }
+    .hero-stats { gap: 20px; }
+    .stat-num { font-size: 28px; }
+  }
+
+  @media (max-width: 380px) {
+    .cards { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <a class="logo" href="#">
+    <div class="logo-dot"></div>
+    ADB SAFEGATE &nbsp;/&nbsp; AXON EQ
+  </a>
+  <div class="header-right">
+    <span class="header-badge">Inset Light · IoT Data Taxonomy</span>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-eyebrow">CORTEX Service · Connected Solutions</div>
+  <h1>What does an<br/><span>AXON EQ</span> report?</h1>
+  <p class="hero-sub">
+    Two telemetry streams. One AXON EQ inset light node emits <strong>45 operational metrics</strong> covering alarms, connectivity and wave depth — plus a separate <strong>IoT sensor stream of 47 metrics</strong> covering temperature, motion, environment and power. This taxonomy maps what each value means and why it matters.
+  </p>
+  <div class="hero-stats">
+    <div class="stat">
+      <span class="stat-num">92</span>
+      <span class="stat-label">Total metrics</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">12</span>
+      <span class="stat-label">Categories</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">25</span>
+      <span class="stat-label">Boolean flags</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">2</span>
+      <span class="stat-label">Data streams</span>
+    </div>
+  </div>
+</section>
+
+<!-- FILTER BAR -->
+<div class="filter-bar">
+  <span class="filter-label">Filter:</span>
+  <button class="filter-btn active" data-filter="all">All</button>
+  <button class="filter-btn" data-filter="alarms">Alarms</button>
+  <button class="filter-btn" data-filter="warnings">Warnings</button>
+  <button class="filter-btn" data-filter="connectivity">Connectivity</button>
+  <button class="filter-btn" data-filter="wave">Wave depth</button>
+  <button class="filter-btn" data-filter="electrical">Electrical</button>
+  <button class="filter-btn" data-filter="failsafe">Failsafe</button>
+  <button class="filter-btn" data-filter="versions">Versions</button>
+  <button class="filter-btn" data-filter="liveness">Liveness</button>
+  <button class="filter-btn" data-filter="sensor-temperature">Temperature</button>
+  <button class="filter-btn" data-filter="sensor-motion">Motion &amp; Magnetic</button>
+  <button class="filter-btn" data-filter="sensor-environment">Environment</button>
+  <button class="filter-btn" data-filter="sensor-power">Power</button>
+</div>
+
+<!-- SEARCH -->
+<div class="search-wrap">
+  <input class="search-input" id="search" type="text" placeholder="Search metrics…" autocomplete="off"/>
+</div>
+
+<!-- MAIN -->
+<main>
+  <div id="empty-state">
+    <p>No metrics match your search.</p>
+    <span>Try a different keyword or clear the filter.</span>
+  </div>
+
+  <!-- ALARMS -->
+  <section class="section" data-section="alarms">
+    <div class="section-header">
+      <div class="section-icon">⚠</div>
+      <div class="section-meta">
+        <div class="section-title">Hardware Alarms</div>
+        <div class="section-desc">Binary fault flags — <code>0 = OK</code>, <code>1 = fault active</code>. Any raised alarm triggers a service action in CORTEX.</div>
+      </div>
+      <div class="section-count">18</div>
+    </div>
+    <div class="cards">
+      <div class="card" data-raw="alarmRemoteBrownout" data-sample="0 / 1" data-desc="Supply voltage dropped below minimum threshold. Indicates unstable power delivery to the CCR circuit.">
+        <div class="card-name">Brownout</div>
+        <div class="card-raw">alarmRemoteBrownout</div>
+        <div class="card-desc">Undervoltage on CCR supply</div>
+        <div class="badge-row"><span class="badge badge-bool">boolean</span></div>
+      </div>
+      <div class="card" data-raw="alarmRemoteConfigFailure" data-sample="0 / 1" data-desc="The light's configuration could not be applied or validated. Often follows a firmware update or parameter push.">
+        <div class="card-name">Config failure</div>
+        <div class="card-raw">alarmRemoteConfigFailure</div>
+        <div class="card-desc">Configuration apply/validate failed</div>
+        <div class="badge-row"><span class="badge badge-bool">boolean</span></div>
+      </div>
+      <div class="card" data-raw="alarmRemoteConfigPinsMismatch" data-sample="0 / 1" data-desc="Hardware DIP-switch pins don't match the expected software configuration. Could indicate wrong physical installation or config mismatch.">
+        <div class="card-name">Config pins mismatch</div>
+        <div class="card-raw">alarmRemoteConfigPinsMismatch</div>
+        <div class="card-desc">HW pins vs SW config conflict</div>
+        <div class="badge-row"><span class="badge badge-bool">boolean</span></div>
+      </div>
+      <div class="card" data-raw="alarmRemoteCorruptStateData" data-sample="0 / 1" data-desc="State data stored in non-volatile memory is corrupt or unreadable. May require re-provisioning.">
+        <div class="card-name">Corrupt state data</div>
+        <div class="card-raw">alarmRemoteCorruptStateData</div>
+        <div class="card-desc">NVM state data integrity failure</div>
+        <div class="badge-row"><span class="badge badge-bool">boolean</span></div>
+      </div>
+      <div class="card" data-raw="alarmRemoteFPGAVersionFailure" data-sample="0 / 1" data-desc="FPGA firmware version doesn't meet the minimum required version. Device may behave unexpectedly.">
+        <div class="card-name">FPGA version failure</div>
+        <div class="card-raw">alarmRemoteFPGAVersionFailure</div>
+        <div class="card-desc">FPGA version below minimum required</div>
+        <div class="badge-row"><span class="badge badge-bool">boolean</span></div>
+      </div>
+      <div class="card" data-raw="alarmRemoteFPGAsuccessfulReset" data-sample="0 / 1" data-desc="FPGA was reset and recovered correctly. Informational — confirms recovery after a detected issue.">
+        <div class="card-name">FPGA reset — OK</div>
+        <div class="card-raw">alarmRemoteFPGAsuccessfulReset</div>
+        <div class="card-desc">FPGA recovered successfully after reset</div>
+        <div class="badge-row"><span class="badge badge-bool">boolean</span></div>
+      </div>
+      <div class="card" data-raw="alarmRemoteFPGAunsuccessfulReset" data-sample="0 / 1" data-desc="FPGA reset was attempted but failed. Device may need physical inspection or replacement.">
+        <div class="card-name">FPGA reset — failed</div>
+        <div class="card-raw">alarmRemoteFPGAunsuccessfulReset</div>
+        <div class="card-desc">FPGA could not recover from reset</div>
+        <div class="badge-row"><span class="badge badge-bool">boolean</span></div>
+      </div>
+      <div class="card" data-raw="alarmRemoteFault" data-sample="0 / 1" data-desc="Generic hardware fault on the remote node. Roll-up flag — check other alarm fields for root cause.">
+        <div class="card-name">Remote fault (roll-up)</div>
+        <div class="card-raw">alarmRemoteFault</div>
+        <div class="card-desc">Generic HW fault; inspect other alarms</div>
+        <div class="badge-row"><span class="badge badge-bool">boolean</span></div>
+      </div>
+      <div class="card" data-raw="alarmRemoteFirmwareVersionFailure" data-sample="0 / 1" data-desc="Installed firmware version doesn't meet minimum requirements. May block certain features.">
+        <div class="card-name">Firmware version failure</div>
+        <div class="card-raw">alarmRemoteFirmwareVersionFailure</div>
+        <div class="card-desc">FW below required minimum version</div>
+        <div class="badge-row"><span class="badge badge-bool">boolean</span></div>
+      </div>
+      <div class="card" data-raw="alarmRemoteLoggedOff" data-sample="0 / 1" data-desc="Remote device has logged off the network — session terminated, not just unreachable.">
+        <div class="card-name">Logged off</div>
+        <div class="card-raw">alarmRemoteLoggedOff</div>
+        <div class="card-desc">Node session was actively terminated</div>
+        <div class="badge-row"><span class="badge badge-bool">boolean</span></div>
+      </div>
+      <div class="card" data-raw="alarmRemoteOutOfRGLSync" data-sample="0 / 1 (active in data)" data-desc="Device is out of sync with the RGL (Runway Guard Light) control loop. Critical for safety-of-operations — this light may not be switching with the rest of the group.">
+        <div class="card-name">Out of RGL sync ⚡</div>
+        <div class="card-raw">alarmRemoteOutOfRGLSync</div>
+        <div class="card-desc">Not synchronised with RGL switching group</div>
+        <div class="badge-row"><span class="badge badge-bool">boolean</span></div>
+      </div>
+      <div class="card" data-raw="alarmRemoteRepeatCountFailure" data-sample="0 / 1" data-desc="Number of signal retransmissions exceeded the allowed threshold. Poor communication channel quality.">
+        <div class="card-name">Repeat count failure</div>
+        <div class="card-raw">alarmRemoteRepeatCountFailure</div>
+        <div class="card-desc">Too many signal retransmissions</div>
+        <div class="badge-row"><span class="badge badge-bool">boolean</span></div>
+      </div>
+      <div class="card" data-raw="alarmRemoteSerialNumberFailure" data-sample="0 / 1" data-desc="Device serial number cannot be read or verified. May indicate hardware tampering or damage.">
+        <div class="card-name">Serial number failure</div>
+        <div class="card-raw">alarmRemoteSerialNumberFailure</div>
+        <div class="card-desc">S/N unreadable or unverifiable</div>
+        <div class="badge-row"><span class="badge badge-bool">boolean</span></div>
+      </div>
+      <div class="card" data-raw="alarmRemoteStateDataWriteError" data-sample="0 / 1" data-desc="Write operation to persistent state storage (NVM) failed. Settings may not survive a power cycle.">
+        <div class="card-name">State data write error</div>
+        <div class="card-raw">alarmRemoteStateDataWriteError</div>
+        <div class="card-desc">NVM write failed — settings may be lost</div>
+        <div class="badge-row"><span class="badge badge-bool">boolean</span></div>
+      </div>
+      <div class="card" data-raw="alarmRemoteTxPowerSettingFailure" data-sample="0 / 1" data-desc="Requested transmit power level could not be applied. May affect communication range.">
+        <div class="card-name">Tx power setting failure</div>
+        <div class="card-raw">alarmRemoteTxPowerSettingFailure</div>
+        <div class="card-desc">RF Tx power could not be applied</div>
+        <div class="badge-row"><span class="badge badge-bool">boolean</span></div>
+      </div>
+      <div class="card" data-raw="alarmRemoteUnreachable" data-sample="0 / 1 (active in data)" data-desc="LINC360 cannot reach this remote node at all. Most critical connectivity alarm — light may be completely offline.">
+        <div class="card-name">Unreachable ⚡</div>
+        <div class="card-raw">alarmRemoteUnreachable</div>
+        <div class="card-desc">Node not responding to any polls</div>
+        <div class="badge-row"><span class="badge badge-bool">boolean</span></div>
+      </div>
+      <div class="card" data-raw="alarmRemoteUtilityDataNotAccepted" data-sample="0 / 1" data-desc="Utility / ancillary data pushed to the device was rejected. Check data format and compatibility.">
+        <div class="card-name">Utility data rejected</div>
+        <div class="card-raw">alarmRemoteUtilityDataNotAccepted</div>
+        <div class="card-desc">Ancillary data push rejected by device</div>
+        <div class="badge-row"><span class="badge badge-bool">boolean</span></div>
+      </div>
+      <div class="card" data-raw="alarmRemoteReserved08" data-sample="always 0" data-desc="Reserved alarm bit 8 — currently unused. Non-zero value would indicate an undocumented hardware condition.">
+        <div class="card-name">Reserved bit 8</div>
+        <div class="card-raw">alarmRemoteReserved08</div>
+        <div class="card-desc">Unused — reserved for future use</div>
+        <div class="badge-row"><span class="badge badge-bool">boolean</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WARNINGS -->
+  <section class="section" data-section="warnings">
+    <div class="section-header">
+      <div class="section-icon">◎</div>
+      <div class="section-meta">
+        <div class="section-title">Warnings</div>
+        <div class="section-desc">Degraded-state flags — not a hard failure, but the device is operating outside nominal conditions. Monitor for escalation.</div>
+      </div>
+      <div class="section-count">7</div>
+    </div>
+    <div class="cards">
+      <div class="card" data-raw="warnRemoteCommRetries" data-sample="0 / 1 (active in data)" data-desc="Communication retries are occurring. The link is working but unreliable — monitor for escalation to alarm.">
+        <div class="card-name">Comm retries ⚡</div>
+        <div class="card-raw">warnRemoteCommRetries</div>
+        <div class="card-desc">Link active but with retransmissions</div>
+        <div class="badge-row"><span class="badge badge-bool">boolean</span></div>
+      </div>
+      <div class="card" data-raw="warnRemoteConfig" data-sample="0 / 1" data-desc="Configuration warning — a non-critical config anomaly detected. Device still operational.">
+        <div class="card-name">Config warning</div>
+        <div class="card-raw">warnRemoteConfig</div>
+        <div class="card-desc">Non-critical configuration anomaly</div>
+        <div class="badge-row"><span class="badge badge-bool">boolean</span></div>
+      </div>
+      <div class="card" data-raw="warnRemoteFPGAVersion" data-sample="0 / 1" data-desc="FPGA version is older than recommended but above the hard minimum. Schedule update at next opportunity.">
+        <div class="card-name">FPGA version outdated</div>
+        <div class="card-raw">warnRemoteFPGAVersion</div>
+        <div class="card-desc">FPGA not on latest recommended version</div>
+        <div class="badge-row"><span class="badge badge-bool">boolean</span></div>
+      </div>
+      <div class="card" data-raw="warnRemoteFirmwareVersion" data-sample="0 / 1" data-desc="Firmware version is older than recommended. No immediate impact but update advised.">
+        <div class="card-name">Firmware outdated</div>
+        <div class="card-raw">warnRemoteFirmwareVersion</div>
+        <div class="card-desc">FW not on latest recommended version</div>
+        <div class="badge-row"><span class="badge badge-bool">boolean</span></div>
+      </div>
+      <div class="card" data-raw="warnRemoteLampUnstable" data-sample="0 / 1" data-desc="Lamp output is unstable — flickering or irregular power draw detected. Early sign of lamp end-of-life or driver issue.">
+        <div class="card-name">Lamp unstable</div>
+        <div class="card-raw">warnRemoteLampUnstable</div>
+        <div class="card-desc">Irregular lamp output / flicker detected</div>
+        <div class="badge-row"><span class="badge badge-bool">boolean</span></div>
+      </div>
+      <div class="card" data-raw="warnRemotePeripheralVersion" data-sample="0 / 1" data-desc="Peripheral module firmware version is older than recommended. Affects optional attached hardware.">
+        <div class="card-name">Peripheral version outdated</div>
+        <div class="card-raw">warnRemotePeripheralVersion</div>
+        <div class="card-desc">Peripheral module FW not current</div>
+        <div class="badge-row"><span class="badge badge-bool">boolean</span></div>
+      </div>
+      <div class="card" data-raw="warnRemoteTxQueueExpMsg" data-sample="0 / 1 (active in data)" data-desc="Transmit queue has messages that have expired without delivery. Indicates transient congestion or a prolonged outage.">
+        <div class="card-name">Tx queue expired msgs ⚡</div>
+        <div class="card-raw">warnRemoteTxQueueExpMsg</div>
+        <div class="card-desc">Undelivered messages expired in queue</div>
+        <div class="badge-row"><span class="badge badge-bool">boolean</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONNECTIVITY -->
+  <section class="section" data-section="connectivity">
+    <div class="section-header">
+      <div class="section-icon">◈</div>
+      <div class="section-meta">
+        <div class="section-title">Connectivity &amp; RF Quality</div>
+        <div class="section-desc">Measures the wireless link between the AXON EQ node and its LINC360 controller. Key inputs for predictive maintenance and radio planning.</div>
+      </div>
+      <div class="section-count">8</div>
+    </div>
+    <div class="cards">
+      <div class="card" data-raw="responseRate" data-sample="0.684 (68.4% in this export)" data-desc="Fraction of polling messages that received a response — including re-transmitted ones. Values below ~0.85 warrant attention. This node is at 68%, which is degraded.">
+        <div class="card-name">Response rate ⚡</div>
+        <div class="card-raw">responseRate</div>
+        <div class="card-desc">Fraction of polls answered (incl. retries)</div>
+        <div class="badge-row"><span class="badge badge-float">0.0 – 1.0</span></div>
+      </div>
+      <div class="card" data-raw="responseRateNonZero" data-sample="0.684 (mirrors responseRate here)" data-desc="Response rate excluding idle periods where no traffic was expected. More accurate indicator of link quality under load.">
+        <div class="card-name">Response rate (active)</div>
+        <div class="card-raw">responseRateNonZero</div>
+        <div class="card-desc">Response rate during active traffic only</div>
+        <div class="badge-row"><span class="badge badge-float">0.0 – 1.0</span></div>
+      </div>
+      <div class="card" data-raw="txPower" data-sample="100 (max)" data-desc="Transmit power level of the RF radio in the node, expressed as a percentage of maximum. Lower values save energy; higher values extend range. At 100%, the controller has already pushed to max range.">
+        <div class="card-name">Tx power</div>
+        <div class="card-raw">txPower</div>
+        <div class="card-desc">RF radio transmit power level</div>
+        <div class="badge-row"><span class="badge badge-int">0 – 100 %</span></div>
+      </div>
+      <div class="card" data-raw="repeatCount" data-sample="1" data-desc="Number of times this specific message had to be retransmitted before it was acknowledged. High values indicate poor link.">
+        <div class="card-name">Repeat count</div>
+        <div class="card-raw">repeatCount</div>
+        <div class="card-desc">Retransmissions for the last message</div>
+        <div class="badge-row"><span class="badge badge-int">integer</span></div>
+      </div>
+      <div class="card" data-raw="repeatDepth" data-sample="-1 (direct link)" data-desc="Depth of repeat nesting in the mesh topology. -1 means direct connection to the LINC360; positive values indicate hops via relay nodes.">
+        <div class="card-name">Repeat depth</div>
+        <div class="card-raw">repeatDepth</div>
+        <div class="card-desc">Mesh hop count (-1 = direct link)</div>
+        <div class="badge-row"><span class="badge badge-int">-1 / 0+</span></div>
+      </div>
+      <div class="card" data-raw="remoteConnectionBad" data-sample="0 / 1" data-desc="Persistent connection quality below threshold. Unlike Unreachable, the device is reachable but the channel is degraded.">
+        <div class="card-name">Connection bad</div>
+        <div class="card-raw">remoteConnectionBad</div>
+        <div class="card-desc">Persistent link quality below threshold</div>
+        <div class="badge-row"><span class="badge badge-bool">boolean</span></div>
+      </div>
+      <div class="card" data-raw="remoteConnectionIssues" data-sample="0 / 1 (active in data)" data-desc="Transient connection issues detected. Less severe than Connection Bad — intermittent degradation.">
+        <div class="card-name">Connection issues ⚡</div>
+        <div class="card-raw">remoteConnectionIssues</div>
+        <div class="card-desc">Intermittent link degradation</div>
+        <div class="badge-row"><span class="badge badge-bool">boolean</span></div>
+      </div>
+      <div class="card" data-raw="alignmentIssue" data-sample="0 / 1" data-desc="Antenna or optical alignment issue detected. For inset lights, this may relate to mounting angle affecting the beam pattern.">
+        <div class="card-name">Alignment issue</div>
+        <div class="card-raw">alignmentIssue</div>
+        <div class="card-desc">Antenna or optical misalignment</div>
+        <div class="badge-row"><span class="badge badge-bool">boolean</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WAVE DEPTH -->
+  <section class="section" data-section="wave">
+    <div class="section-header">
+      <div class="section-icon">⌇</div>
+      <div class="section-meta">
+        <div class="section-title">Wave Depth — Optical Sensing</div>
+        <div class="section-desc">Measures signal reflection depth in upstream (US) and downstream (DS) channels. The IoT differentiator — enables FOD proximity detection, cover fouling alerts, and obstruction monitoring.</div>
+      </div>
+      <div class="section-count">4</div>
+    </div>
+    <div class="cards">
+      <div class="card" data-raw="usWaveDepth" data-sample="1, 2" data-desc="Raw upstream wave depth reading from the optical sensor. Integer bin value — higher = deeper or stronger reflection in the US channel. Sudden jumps may indicate an object in the light's proximity.">
+        <div class="card-name">US wave depth (raw)</div>
+        <div class="card-raw">usWaveDepth</div>
+        <div class="card-desc">Upstream optical sensor raw bin value</div>
+        <div class="badge-row"><span class="badge badge-int">integer bins</span></div>
+      </div>
+      <div class="card" data-raw="usWaveDepthAverage" data-sample="≈ 1.07" data-desc="Rolling average of upstream wave depth over recent samples. Reduces noise for trend analysis. Sustained values above ~1.5 may indicate a persistent obstruction or degraded optics.">
+        <div class="card-name">US wave depth (avg)</div>
+        <div class="card-raw">usWaveDepthAverage</div>
+        <div class="card-desc">Smoothed US reading for trend analysis</div>
+        <div class="badge-row"><span class="badge badge-float">float</span></div>
+      </div>
+      <div class="card" data-raw="dsWaveDepth" data-sample="0, 1" data-desc="Raw downstream wave depth from the optical sensor. Integer bin value — detects reflections in the DS optical path. Used to detect cover contamination from the downstream side.">
+        <div class="card-name">DS wave depth (raw)</div>
+        <div class="card-raw">dsWaveDepth</div>
+        <div class="card-desc">Downstream optical sensor raw bin value</div>
+        <div class="badge-row"><span class="badge badge-int">integer bins</span></div>
+      </div>
+      <div class="card" data-raw="dsWaveDepthAverage" data-sample="≈ 0.43" data-desc="Rolling average of downstream wave depth. Trend used for contamination or cover fouling detection over time — gradual increase points to surface buildup.">
+        <div class="card-name">DS wave depth (avg)</div>
+        <div class="card-raw">dsWaveDepthAverage</div>
+        <div class="card-desc">Smoothed DS reading for fouling trends</div>
+        <div class="badge-row"><span class="badge badge-float">float</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ELECTRICAL -->
+  <section class="section" data-section="electrical">
+    <div class="section-header">
+      <div class="section-icon">⚡</div>
+      <div class="section-meta">
+        <div class="section-title">Electrical</div>
+        <div class="section-desc">Real-time electrical measurement from the series CCR circuit. Deviations from the ~5 A nominal are an early indicator of lamp or driver degradation.</div>
+      </div>
+      <div class="section-count">1</div>
+    </div>
+    <div class="cards">
+      <div class="card" data-raw="inputCurrent" data-sample="5000 – 5062 mA (≈ 5 A)" data-desc="Input current draw of the light fixture in milliamps. Nominal steady-state is ~5000 mA. Sustained deviations of ±200 mA+ are an early sign of lamp degradation, driver fault, or wiring issue.">
+        <div class="card-name">Input current</div>
+        <div class="card-raw">inputCurrent</div>
+        <div class="card-desc">Fixture current draw from CCR circuit</div>
+        <div class="badge-row"><span class="badge badge-float">milliamps · nominal ~5000</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAILSAFE -->
+  <section class="section" data-section="failsafe">
+    <div class="section-header">
+      <div class="section-icon">◉</div>
+      <div class="section-meta">
+        <div class="section-title">Failsafe State</div>
+        <div class="section-desc">Tracks whether the light has entered a safe fallback state and which scenario triggered it. When in failsafe, the fixture reverts to its pre-configured safe output.</div>
+      </div>
+      <div class="section-count">2</div>
+    </div>
+    <div class="cards">
+      <div class="card" data-raw="eventFailsafe" data-sample="0 / 1" data-desc="Failsafe event was triggered. When set, the light has reverted to its configured safe-state output (e.g. always-on or always-off depending on installation type).">
+        <div class="card-name">Failsafe triggered</div>
+        <div class="card-raw">eventFailsafe</div>
+        <div class="card-desc">Light has entered its failsafe mode</div>
+        <div class="badge-row"><span class="badge badge-bool">boolean</span></div>
+      </div>
+      <div class="card" data-raw="failsafeIndex" data-sample="0" data-desc="Index of the failsafe scenario that was triggered. Maps to a predefined table of failsafe configurations — e.g. 0 = communication loss, 1 = power fault.">
+        <div class="card-name">Failsafe index</div>
+        <div class="card-raw">failsafeIndex</div>
+        <div class="card-desc">Which failsafe scenario was activated</div>
+        <div class="badge-row"><span class="badge badge-int">0-based scenario index</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- VERSIONS -->
+  <section class="section" data-section="versions">
+    <div class="section-header">
+      <div class="section-icon">⊞</div>
+      <div class="section-meta">
+        <div class="section-title">Firmware &amp; Hardware Versions</div>
+        <div class="section-desc">Version strings for all software and hardware components on the remote node. Null = not yet read or not applicable. Used for fleet-wide version compliance checks.</div>
+      </div>
+      <div class="section-count">3</div>
+    </div>
+    <div class="cards">
+      <div class="card" data-raw="linc360RemoteFirmwareVersion" data-sample="null / version string" data-desc="Firmware version string of the remote LINC360 node embedded in the AXON EQ light. Critical for compatibility checks and triggering OTA update campaigns.">
+        <div class="card-name">Remote FW version</div>
+        <div class="card-raw">linc360RemoteFirmwareVersion</div>
+        <div class="card-desc">LINC360 remote firmware version string</div>
+        <div class="badge-row"><span class="badge badge-string">version string / null</span></div>
+      </div>
+      <div class="card" data-raw="linc360RemoteFpgaVersion" data-sample="null / version string" data-desc="FPGA logic version on the remote node. Must match a supported baseline for correct I/O behaviour.">
+        <div class="card-name">Remote FPGA version</div>
+        <div class="card-raw">linc360RemoteFpgaVersion</div>
+        <div class="card-desc">FPGA logic version on remote node</div>
+        <div class="badge-row"><span class="badge badge-string">version string / null</span></div>
+      </div>
+      <div class="card" data-raw="linc360RemotePeripheralVersion" data-sample="null / version string" data-desc="Firmware version of the peripheral module (if installed). Controls optional sensor or actuator attachments on the AXON EQ.">
+        <div class="card-name">Remote peripheral version</div>
+        <div class="card-raw">linc360RemotePeripheralVersion</div>
+        <div class="card-desc">Peripheral module FW version string</div>
+        <div class="badge-row"><span class="badge badge-string">version string / null</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LIVENESS -->
+  <section class="section" data-section="liveness">
+    <div class="section-header">
+      <div class="section-icon">●</div>
+      <div class="section-meta">
+        <div class="section-title">Node Liveness &amp; Data Freshness</div>
+        <div class="section-desc">Tracks whether the data record is still valid and when the node was last seen. All other metrics should be treated with caution when <code>stale = 1</code>.</div>
+      </div>
+      <div class="section-count">2</div>
+    </div>
+    <div class="cards">
+      <div class="card" data-raw="stale" data-sample="0 / 1" data-desc="Set to 1 when the data for this node has not been refreshed within the expected polling interval. Downstream consumers (dashboards, alerts) should treat all other metrics with caution when stale = 1.">
+        <div class="card-name">Stale</div>
+        <div class="card-raw">stale</div>
+        <div class="card-desc">Data not refreshed in expected time window</div>
+        <div class="badge-row"><span class="badge badge-bool">boolean</span></div>
+      </div>
+      <div class="card" data-raw="lastSeen" data-sample="1.775 × 10⁹ (Unix epoch)" data-desc="Unix epoch timestamp (seconds) when the node last responded to a poll. Used to calculate time-since-last-contact for staleness and SLA tracking.">
+        <div class="card-name">Last seen</div>
+        <div class="card-raw">lastSeen</div>
+        <div class="card-desc">Last successful poll — Unix epoch (s)</div>
+        <div class="badge-row"><span class="badge badge-int">Unix timestamp (s)</span></div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- DATASET 2 DIVIDER -->
+<div class="dataset-divider">
+  <div class="dataset-divider-inner">
+    <div class="dataset-divider-icon">🌡</div>
+    <div>
+      <div class="dataset-divider-label">Dataset 2 — AXON EQ Sensor Telemetry</div>
+      <div class="dataset-divider-sub">47 metrics · 127 nodes · asset_type: remote.axon.sensors · YYC deployment · 30 March 2026</div>
+    </div>
+    <div class="dataset-divider-badge">IoT sensor layer</div>
+  </div>
+</div>
+
+<main>
+
+  <!-- TEMPERATURE SENSORS -->
+  <section class="section" data-section="sensor-temperature">
+    <div class="section-header">
+      <div class="section-icon">🌡</div>
+      <div class="section-meta">
+        <div class="section-title">Temperature Sensors</div>
+        <div class="section-desc">Six temperature channels per node — ambient environment, internal housing, and both LED driver chips. Each comes as a current reading plus a min/max over the reporting interval.</div>
+      </div>
+      <div class="section-count">15</div>
+    </div>
+    <div class="cards">
+
+      <div class="card" data-raw="ambientTemperature" data-sample="6 – 10 °C (Calgary, March)" data-desc="Current ambient air temperature outside the fixture, in degrees Celsius. Reflects the airfield environment the light is exposed to. Paired with humidity for dew point / condensation risk assessment.">
+        <div class="card-name">Ambient temperature</div>
+        <div class="card-raw">ambientTemperature</div>
+        <div class="card-desc">External air temp at the fixture</div>
+        <div class="badge-row"><span class="badge badge-int">°C (integer)</span></div>
+        <div class="card-triplet-hint">+ ambientTemperatureMaximum / Minimum</div>
+      </div>
+
+      <div class="card" data-raw="ambientTemperatureMaximum" data-sample="same as current (stable period)" data-desc="Peak ambient temperature recorded during the current reporting interval. Used to detect rapid thermal swings (e.g. jet blast, direct sunlight heating) that could stress the fixture.">
+        <div class="card-name">Ambient temp — max</div>
+        <div class="card-raw">ambientTemperatureMaximum</div>
+        <div class="card-desc">Peak ambient temp in interval</div>
+        <div class="badge-row"><span class="badge badge-int">°C</span><span class="badge badge-minmax">interval max</span></div>
+      </div>
+
+      <div class="card" data-raw="ambientTemperatureMinimum" data-sample="same as current (stable period)" data-desc="Lowest ambient temperature in the reporting interval. Low values near 0 °C flag icing risk — useful for predictive maintenance and de-icing decisions.">
+        <div class="card-name">Ambient temp — min</div>
+        <div class="card-raw">ambientTemperatureMinimum</div>
+        <div class="card-desc">Lowest ambient temp in interval</div>
+        <div class="badge-row"><span class="badge badge-int">°C</span><span class="badge badge-minmax">interval min</span></div>
+      </div>
+
+      <div class="card" data-raw="ambientTemperatureLegacyInDegC" data-sample="same as ambientTemperature" data-desc="Legacy field — identical to ambientTemperature but retained for backwards compatibility with older CORTEX integrations that reference the explicit unit suffix.">
+        <div class="card-name">Ambient temp (legacy field)</div>
+        <div class="card-raw">ambientTemperatureLegacyInDegC</div>
+        <div class="card-desc">Duplicate of ambientTemperature; retained for legacy API consumers</div>
+        <div class="badge-row"><span class="badge badge-int">°C</span><span class="badge badge-string">legacy</span></div>
+        <div class="card-triplet-hint">+ LegacyInDegCMaximum / Minimum</div>
+      </div>
+
+      <div class="card" data-raw="internalTemperature" data-sample="6 – 10 °C" data-desc="Temperature inside the fixture housing. Should track ambient but lags due to thermal mass. Large divergence from ambient suggests poor heat dissipation or an internal heat source fault.">
+        <div class="card-name">Internal temperature</div>
+        <div class="card-raw">internalTemperature</div>
+        <div class="card-desc">Temperature inside the fixture housing</div>
+        <div class="badge-row"><span class="badge badge-int">°C</span></div>
+        <div class="card-triplet-hint">+ internalTemperatureMaximum / Minimum</div>
+      </div>
+
+      <div class="card" data-raw="internalTemperatureMaximum" data-sample="same as current" data-desc="Peak internal temperature during the interval. Sustained high values indicate thermal management issues — inadequate ventilation or blocked heat paths.">
+        <div class="card-name">Internal temp — max</div>
+        <div class="card-raw">internalTemperatureMaximum</div>
+        <div class="card-desc">Peak housing temp in interval</div>
+        <div class="badge-row"><span class="badge badge-int">°C</span><span class="badge badge-minmax">interval max</span></div>
+      </div>
+
+      <div class="card" data-raw="internalTemperatureMinimum" data-sample="same as current" data-desc="Minimum internal temperature in the interval. Cold starts after extended power-off are visible here.">
+        <div class="card-name">Internal temp — min</div>
+        <div class="card-raw">internalTemperatureMinimum</div>
+        <div class="card-desc">Minimum housing temp in interval</div>
+        <div class="badge-row"><span class="badge badge-int">°C</span><span class="badge badge-minmax">interval min</span></div>
+      </div>
+
+      <div class="card" data-raw="led01Temperature" data-sample="0 – 11 °C" data-desc="Junction temperature of LED driver chip #1. Critical for LED longevity — sustained values above ~60 °C accelerate lumen depreciation. At Calgary in winter, values near ambient indicate the LED is off or just starting up.">
+        <div class="card-name">LED driver 1 temperature</div>
+        <div class="card-raw">led01Temperature</div>
+        <div class="card-desc">Thermal reading of LED chip 1</div>
+        <div class="badge-row"><span class="badge badge-int">°C</span></div>
+        <div class="card-triplet-hint">+ led01TemperatureMaximum / Minimum</div>
+      </div>
+
+      <div class="card" data-raw="led01TemperatureMaximum" data-sample="0 – 11 °C" data-desc="Peak LED driver 1 temperature. Transient spikes here can reveal drive current instability or inadequate thermal interface between chip and heatsink.">
+        <div class="card-name">LED driver 1 temp — max</div>
+        <div class="card-raw">led01TemperatureMaximum</div>
+        <div class="card-desc">Peak LED chip 1 temp in interval</div>
+        <div class="badge-row"><span class="badge badge-int">°C</span><span class="badge badge-minmax">interval max</span></div>
+      </div>
+
+      <div class="card" data-raw="led01TemperatureMinimum" data-sample="-1 – 12 °C" data-desc="Minimum LED driver 1 temperature. Negative values here (seen in this export) indicate thermal sensor reads below ambient — within normal range for a cold environment.">
+        <div class="card-name">LED driver 1 temp — min</div>
+        <div class="card-raw">led01TemperatureMinimum</div>
+        <div class="card-desc">Min LED chip 1 temp in interval</div>
+        <div class="badge-row"><span class="badge badge-int">°C</span><span class="badge badge-minmax">interval min</span></div>
+      </div>
+
+      <div class="card" data-raw="led02Temperature" data-sample="1 – 12 °C" data-desc="Junction temperature of LED driver chip #2. Should track LED 1 closely. A growing divergence between LED1 and LED2 temps is an early sign of differential degradation — one chip running hotter than the other.">
+        <div class="card-name">LED driver 2 temperature</div>
+        <div class="card-raw">led02Temperature</div>
+        <div class="card-desc">Thermal reading of LED chip 2</div>
+        <div class="badge-row"><span class="badge badge-int">°C</span></div>
+        <div class="card-triplet-hint">+ led02TemperatureMaximum / Minimum</div>
+      </div>
+
+      <div class="card" data-raw="led02TemperatureMaximum" data-sample="1 – 12 °C" data-desc="Peak LED driver 2 temperature during the interval.">
+        <div class="card-name">LED driver 2 temp — max</div>
+        <div class="card-raw">led02TemperatureMaximum</div>
+        <div class="card-desc">Peak LED chip 2 temp in interval</div>
+        <div class="badge-row"><span class="badge badge-int">°C</span><span class="badge badge-minmax">interval max</span></div>
+      </div>
+
+      <div class="card" data-raw="led02TemperatureMinimum" data-sample="8 – 12 °C" data-desc="Minimum LED driver 2 temperature in the interval.">
+        <div class="card-name">LED driver 2 temp — min</div>
+        <div class="card-raw">led02TemperatureMinimum</div>
+        <div class="card-desc">Min LED chip 2 temp in interval</div>
+        <div class="badge-row"><span class="badge badge-int">°C</span><span class="badge badge-minmax">interval min</span></div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- MOTION & MAGNETIC SENSORS -->
+  <section class="section" data-section="sensor-motion">
+    <div class="section-header">
+      <div class="section-icon">⬡</div>
+      <div class="section-meta">
+        <div class="section-title">Motion &amp; Magnetic Field</div>
+        <div class="section-desc">3-axis accelerometer and 3-axis magnetometer, each reporting current + min/max per interval. The accelerometer detects vibration, tilt, and impact. The magnetometer can detect nearby metallic objects or magnetic field disturbances — relevant for FOD or vehicle intrusion detection.</div>
+      </div>
+      <div class="section-count">18</div>
+    </div>
+    <div class="cards">
+
+      <div class="card" data-raw="accelerometerX" data-sample="-5 to +10 (mg)" data-desc="Current X-axis acceleration in milli-g. At rest with correct horizontal mounting, X and Y should be near zero; Z near +1000 mg (1g, gravity). Non-zero X/Y values at rest indicate tilt or misalignment.">
+        <div class="card-name">Accelerometer X</div>
+        <div class="card-raw">accelerometerX</div>
+        <div class="card-desc">X-axis acceleration (lateral)</div>
+        <div class="badge-row"><span class="badge badge-int">milli-g</span></div>
+        <div class="card-triplet-hint">+ accelerometerXMaximum / Minimum</div>
+      </div>
+
+      <div class="card" data-raw="accelerometerXMaximum" data-sample="3 – 14 mg" data-desc="Peak X-axis acceleration in the interval. High transient values indicate vibration from aircraft jet blast, ground vehicles, or physical impact on the fixture.">
+        <div class="card-name">Accelerometer X — max</div>
+        <div class="card-raw">accelerometerXMaximum</div>
+        <div class="card-desc">Peak X-axis acceleration in interval</div>
+        <div class="badge-row"><span class="badge badge-int">milli-g</span><span class="badge badge-minmax">interval max</span></div>
+      </div>
+
+      <div class="card" data-raw="accelerometerXMinimum" data-sample="-10 to +4 mg" data-desc="Minimum (most negative) X-axis acceleration in the interval. Together with Maximum, this gives the full vibration envelope on this axis.">
+        <div class="card-name">Accelerometer X — min</div>
+        <div class="card-raw">accelerometerXMinimum</div>
+        <div class="card-desc">Min X-axis acceleration in interval</div>
+        <div class="badge-row"><span class="badge badge-int">milli-g</span><span class="badge badge-minmax">interval min</span></div>
+      </div>
+
+      <div class="card" data-raw="accelerometerY" data-sample="-22 to +13 (mg)" data-desc="Current Y-axis acceleration (fore-aft relative to fixture orientation). Values seen in this export up to ±22 mg at rest suggest the node has a slight tilt or is on a crowned runway surface.">
+        <div class="card-name">Accelerometer Y</div>
+        <div class="card-raw">accelerometerY</div>
+        <div class="card-desc">Y-axis acceleration (fore-aft)</div>
+        <div class="badge-row"><span class="badge badge-int">milli-g</span></div>
+        <div class="card-triplet-hint">+ accelerometerYMaximum / Minimum</div>
+      </div>
+
+      <div class="card" data-raw="accelerometerYMaximum" data-sample="-15 to +18 mg" data-desc="Peak Y-axis acceleration in the interval.">
+        <div class="card-name">Accelerometer Y — max</div>
+        <div class="card-raw">accelerometerYMaximum</div>
+        <div class="card-desc">Peak Y-axis acceleration in interval</div>
+        <div class="badge-row"><span class="badge badge-int">milli-g</span><span class="badge badge-minmax">interval max</span></div>
+      </div>
+
+      <div class="card" data-raw="accelerometerYMinimum" data-sample="-30 to +10 mg" data-desc="Minimum Y-axis acceleration in the interval.">
+        <div class="card-name">Accelerometer Y — min</div>
+        <div class="card-raw">accelerometerYMinimum</div>
+        <div class="card-desc">Min Y-axis acceleration in interval</div>
+        <div class="badge-row"><span class="badge badge-int">milli-g</span><span class="badge badge-minmax">interval min</span></div>
+      </div>
+
+      <div class="card" data-raw="accelerometerZ" data-sample="996 – 1017 mg (≈ 1g)" data-desc="Current Z-axis acceleration. At rest and horizontal, Z should read ~1000 mg (standard gravity). Values seen here are 996–1017, which is nominal. Significant deviation from 1000 mg when stationary indicates levelling error or structural deformation.">
+        <div class="card-name">Accelerometer Z</div>
+        <div class="card-raw">accelerometerZ</div>
+        <div class="card-desc">Z-axis (vertical) acceleration — ~1000 mg at rest</div>
+        <div class="badge-row"><span class="badge badge-int">milli-g · nominal 1000</span></div>
+        <div class="card-triplet-hint">+ accelerometerZMaximum / Minimum</div>
+      </div>
+
+      <div class="card" data-raw="accelerometerZMaximum" data-sample="1000 – 1048 mg" data-desc="Peak vertical acceleration. Spikes here indicate vertical impact — vehicle driving over the fixture or heavy aircraft taxiing close by.">
+        <div class="card-name">Accelerometer Z — max</div>
+        <div class="card-raw">accelerometerZMaximum</div>
+        <div class="card-desc">Peak vertical acceleration in interval</div>
+        <div class="badge-row"><span class="badge badge-int">milli-g</span><span class="badge badge-minmax">interval max</span></div>
+      </div>
+
+      <div class="card" data-raw="accelerometerZMinimum" data-sample="0 – 994 mg" data-desc="Minimum vertical acceleration. A value near 0 mg would indicate the fixture went momentarily weightless or was lifted — a critical alert condition.">
+        <div class="card-name">Accelerometer Z — min</div>
+        <div class="card-raw">accelerometerZMinimum</div>
+        <div class="card-desc">Min vertical acceleration in interval</div>
+        <div class="badge-row"><span class="badge badge-int">milli-g</span><span class="badge badge-minmax">interval min</span></div>
+      </div>
+
+      <div class="card" data-raw="magneticX" data-sample="4222 – 41852 (raw counts)" data-desc="Raw magnetometer X-axis reading in sensor counts (16-bit ADC range 0–65535). The absolute value depends on fixture orientation and local magnetic field. Changes over time relative to baseline are more meaningful than the absolute value.">
+        <div class="card-name">Magnetic field X</div>
+        <div class="card-raw">magneticX</div>
+        <div class="card-desc">Magnetometer X-axis raw counts</div>
+        <div class="badge-row"><span class="badge badge-int">16-bit counts</span></div>
+        <div class="card-triplet-hint">+ magneticXMaximum / Minimum</div>
+      </div>
+
+      <div class="card" data-raw="magneticXMaximum" data-sample="41852 – 65407" data-desc="Peak X-axis magnetic field reading in the interval. High maximum values (near 65535) can indicate a large metallic object passing very close to the fixture — potentially a FOD item or vehicle.">
+        <div class="card-name">Magnetic X — max</div>
+        <div class="card-raw">magneticXMaximum</div>
+        <div class="card-desc">Peak X magnetic reading in interval</div>
+        <div class="badge-row"><span class="badge badge-int">16-bit counts</span><span class="badge badge-minmax">interval max</span></div>
+      </div>
+
+      <div class="card" data-raw="magneticXMinimum" data-sample="126 – 41852" data-desc="Minimum X-axis magnetic reading in the interval.">
+        <div class="card-name">Magnetic X — min</div>
+        <div class="card-raw">magneticXMinimum</div>
+        <div class="card-desc">Min X magnetic reading in interval</div>
+        <div class="badge-row"><span class="badge badge-int">16-bit counts</span><span class="badge badge-minmax">interval min</span></div>
+      </div>
+
+      <div class="card" data-raw="magneticY" data-sample="4225 – 64384 (raw counts)" data-desc="Raw magnetometer Y-axis reading. Combined with X and Z axes, gives a full 3D magnetic field vector — useful for detecting metallic FOD or vehicle proximity from any direction.">
+        <div class="card-name">Magnetic field Y</div>
+        <div class="card-raw">magneticY</div>
+        <div class="card-desc">Magnetometer Y-axis raw counts</div>
+        <div class="badge-row"><span class="badge badge-int">16-bit counts</span></div>
+        <div class="card-triplet-hint">+ magneticYMaximum / Minimum</div>
+      </div>
+
+      <div class="card" data-raw="magneticYMaximum" data-sample="63360 – 65408" data-desc="Peak Y-axis magnetic reading. Near-saturation values (>60000) in the export suggest some nodes see strong magnetic events — worth correlating with movement logs.">
+        <div class="card-name">Magnetic Y — max</div>
+        <div class="card-raw">magneticYMaximum</div>
+        <div class="card-desc">Peak Y magnetic reading in interval</div>
+        <div class="badge-row"><span class="badge badge-int">16-bit counts</span><span class="badge badge-minmax">interval max</span></div>
+      </div>
+
+      <div class="card" data-raw="magneticYMinimum" data-sample="125 – 1153" data-desc="Minimum Y-axis magnetic field reading in the interval.">
+        <div class="card-name">Magnetic Y — min</div>
+        <div class="card-raw">magneticYMinimum</div>
+        <div class="card-desc">Min Y magnetic reading in interval</div>
+        <div class="badge-row"><span class="badge badge-int">16-bit counts</span><span class="badge badge-minmax">interval min</span></div>
+      </div>
+
+      <div class="card" data-raw="magneticZ" data-sample="35207 – 53642 (raw counts)" data-desc="Raw magnetometer Z-axis (vertical) reading. Primarily responds to metallic objects approaching from above — particularly relevant for overrun vehicles or dropped metallic objects landing on the light.">
+        <div class="card-name">Magnetic field Z</div>
+        <div class="card-raw">magneticZ</div>
+        <div class="card-desc">Magnetometer Z-axis (vertical) raw counts</div>
+        <div class="badge-row"><span class="badge badge-int">16-bit counts</span></div>
+        <div class="card-triplet-hint">+ magneticZMaximum / Minimum</div>
+      </div>
+
+      <div class="card" data-raw="magneticZMaximum" data-sample="62090 – 65418" data-desc="Peak Z-axis magnetic reading. Near-saturation levels seen in this export across many nodes.">
+        <div class="card-name">Magnetic Z — max</div>
+        <div class="card-raw">magneticZMaximum</div>
+        <div class="card-desc">Peak Z magnetic reading in interval</div>
+        <div class="badge-row"><span class="badge badge-int">16-bit counts</span><span class="badge badge-minmax">interval max</span></div>
+      </div>
+
+      <div class="card" data-raw="magneticZMinimum" data-sample="135 – 907" data-desc="Minimum Z-axis magnetic field reading in the interval.">
+        <div class="card-name">Magnetic Z — min</div>
+        <div class="card-raw">magneticZMinimum</div>
+        <div class="card-desc">Min Z magnetic reading in interval</div>
+        <div class="badge-row"><span class="badge badge-int">16-bit counts</span><span class="badge badge-minmax">interval min</span></div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ENVIRONMENT SENSORS -->
+  <section class="section" data-section="sensor-environment">
+    <div class="section-header">
+      <div class="section-icon">◎</div>
+      <div class="section-meta">
+        <div class="section-title">Environmental — Humidity &amp; Pressure</div>
+        <div class="section-desc">Atmospheric conditions at the fixture location. Humidity drives condensation and corrosion risk. Pressure (barometric) reveals altitude and enables weather correlation. Both include legacy field variants for backwards compatibility.</div>
+      </div>
+      <div class="section-count">9</div>
+    </div>
+    <div class="cards">
+
+      <div class="card" data-raw="humidity" data-sample="60 – 126 (raw counts)" data-desc="Relative humidity as raw sensor counts. One node reads 126 — above the typical 0–100% RH scale — suggesting a sensor in saturation or a node with a waterlogged sensor. High humidity (>80%) sustained over time correlates with corrosion risk and connector oxidation.">
+        <div class="card-name">Humidity</div>
+        <div class="card-raw">humidity</div>
+        <div class="card-desc">Relative humidity — raw sensor counts</div>
+        <div class="badge-row"><span class="badge badge-int">raw counts · 0–100 = % RH</span></div>
+        <div class="card-triplet-hint">+ humidityMaximum / Minimum</div>
+      </div>
+
+      <div class="card" data-raw="humidityMaximum" data-sample="60 – 126" data-desc="Peak humidity reading in the interval. Tracking the maximum helps identify nodes that experience condensation events even if the average reading looks acceptable.">
+        <div class="card-name">Humidity — max</div>
+        <div class="card-raw">humidityMaximum</div>
+        <div class="card-desc">Peak humidity reading in interval</div>
+        <div class="badge-row"><span class="badge badge-int">raw counts</span><span class="badge badge-minmax">interval max</span></div>
+      </div>
+
+      <div class="card" data-raw="humidityMinimum" data-sample="60 – 125" data-desc="Minimum humidity reading in the interval.">
+        <div class="card-name">Humidity — min</div>
+        <div class="card-raw">humidityMinimum</div>
+        <div class="card-desc">Minimum humidity reading in interval</div>
+        <div class="badge-row"><span class="badge badge-int">raw counts</span><span class="badge badge-minmax">interval min</span></div>
+      </div>
+
+      <div class="card" data-raw="pressure" data-sample="872 – 936 mbar" data-desc="Barometric pressure in millibar. Calgary airport (YYC) sits at ~1084m elevation — expected sea-level pressure adjusted to station pressure gives ~873–940 mbar, which matches this export exactly. Sudden drops can indicate weather front arrivals; useful for correlating with maintenance windows.">
+        <div class="card-name">Pressure</div>
+        <div class="card-raw">pressure</div>
+        <div class="card-desc">Barometric pressure at fixture elevation</div>
+        <div class="badge-row"><span class="badge badge-int">mbar</span></div>
+        <div class="card-triplet-hint">+ pressureMaximum / Minimum</div>
+      </div>
+
+      <div class="card" data-raw="pressureMaximum" data-sample="873 – 936 mbar" data-desc="Peak pressure reading in the interval.">
+        <div class="card-name">Pressure — max</div>
+        <div class="card-raw">pressureMaximum</div>
+        <div class="card-desc">Peak barometric pressure in interval</div>
+        <div class="badge-row"><span class="badge badge-int">mbar</span><span class="badge badge-minmax">interval max</span></div>
+      </div>
+
+      <div class="card" data-raw="pressureMinimum" data-sample="872 – 935 mbar" data-desc="Minimum pressure reading in the interval.">
+        <div class="card-name">Pressure — min</div>
+        <div class="card-raw">pressureMinimum</div>
+        <div class="card-desc">Minimum barometric pressure in interval</div>
+        <div class="badge-row"><span class="badge badge-int">mbar</span><span class="badge badge-minmax">interval min</span></div>
+      </div>
+
+      <div class="card" data-raw="pressureLegacyInMbar" data-sample="same as pressure" data-desc="Legacy field — identical to pressure (already in mbar) but retained with explicit unit suffix for older CORTEX integrations.">
+        <div class="card-name">Pressure (legacy field)</div>
+        <div class="card-raw">pressureLegacyInMbar</div>
+        <div class="card-desc">Duplicate of pressure; retained for legacy API consumers</div>
+        <div class="badge-row"><span class="badge badge-int">mbar</span><span class="badge badge-string">legacy</span></div>
+        <div class="card-triplet-hint">+ LegacyInMbarMaximum / Minimum</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- POWER -->
+  <section class="section" data-section="sensor-power">
+    <div class="section-header">
+      <div class="section-icon">⚡</div>
+      <div class="section-meta">
+        <div class="section-title">Power — Boost Voltage</div>
+        <div class="section-desc">The internal DC boost converter output voltage that drives the LED emitters. Nominal ~24V. Monitoring this gives early warning of driver degradation before it manifests as a visible light output change.</div>
+      </div>
+      <div class="section-count">3</div>
+    </div>
+    <div class="cards">
+
+      <div class="card" data-raw="boostVoltage" data-sample="24131 – 24218 mV (≈ 24.1 V)" data-desc="Current output voltage of the internal DC boost converter in millivolts. Nominal operating range is ~23.8–24.4V (23800–24400 mV). Values outside this band indicate driver wear, capacitor degradation, or load changes.">
+        <div class="card-name">Boost voltage</div>
+        <div class="card-raw">boostVoltage</div>
+        <div class="card-desc">Internal LED driver boost converter output</div>
+        <div class="badge-row"><span class="badge badge-float">millivolts · nominal ~24000</span></div>
+        <div class="card-triplet-hint">+ boostVoltageMaximum / Minimum</div>
+      </div>
+
+      <div class="card" data-raw="boostVoltageMaximum" data-sample="24169 – 24382 mV" data-desc="Peak boost voltage during the interval. Sustained highs above 24400 mV may indicate feedback loop instability in the boost converter.">
+        <div class="card-name">Boost voltage — max</div>
+        <div class="card-raw">boostVoltageMaximum</div>
+        <div class="card-desc">Peak boost converter voltage in interval</div>
+        <div class="badge-row"><span class="badge badge-float">mV</span><span class="badge badge-minmax">interval max</span></div>
+      </div>
+
+      <div class="card" data-raw="boostVoltageMinimum" data-sample="23802 – 24169 mV" data-desc="Minimum boost voltage in the interval. Dips below ~23700 mV warrant investigation — the LED emitter may be experiencing under-voltage and flickering at a rate too fast for visual detection.">
+        <div class="card-name">Boost voltage — min</div>
+        <div class="card-raw">boostVoltageMinimum</div>
+        <div class="card-desc">Minimum boost converter voltage in interval</div>
+        <div class="badge-row"><span class="badge badge-float">mV</span><span class="badge badge-minmax">interval min</span></div>
+      </div>
+
+    </div>
+  </section>
+
+</main>
+
+<!-- TOOLTIP -->
+<div id="tooltip">
+  <div class="tt-raw" id="tt-raw"></div>
+  <div class="tt-sample" id="tt-sample"></div>
+  <div class="tt-desc" id="tt-desc"></div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <strong>ADB SAFEGATE · CORTEX Service</strong> — AXON EQ Inset Light IoT Data Taxonomy · Operational + Sensor streams · YYC (Calgary) deployment · 30 March 2026
+</footer>
+
+<script>
+  // ── TOOLTIP ────────────────────────────────────────────────────
+  const tt = document.getElementById('tooltip');
+  document.querySelectorAll('.card[data-raw]').forEach(card => {
+    card.addEventListener('mouseenter', () => {
+      document.getElementById('tt-raw').textContent = card.dataset.raw;
+      document.getElementById('tt-sample').textContent = 'Sample: ' + card.dataset.sample;
+      document.getElementById('tt-desc').textContent = card.dataset.desc;
+      tt.style.display = 'block';
+    });
+    card.addEventListener('mousemove', e => {
+      const x = e.clientX + 16, y = e.clientY - 12;
+      const w = 280, h = tt.offsetHeight || 120;
+      tt.style.left = (x + w > window.innerWidth ? e.clientX - w - 16 : x) + 'px';
+      tt.style.top = (y + h > window.innerHeight ? e.clientY - h - 12 : y) + 'px';
+    });
+    card.addEventListener('mouseleave', () => { tt.style.display = 'none'; });
+  });
+
+  // ── FILTER ─────────────────────────────────────────────────────
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      applyFilters();
+    });
+  });
+
+  // ── SEARCH ─────────────────────────────────────────────────────
+  document.getElementById('search').addEventListener('input', applyFilters);
+
+  function applyFilters() {
+    const activeFilter = document.querySelector('.filter-btn.active').dataset.filter;
+    const query = document.getElementById('search').value.toLowerCase().trim();
+    let anyVisible = false;
+
+    document.querySelectorAll('.section').forEach(section => {
+      const sectionKey = section.dataset.section;
+      const sectionMatch = activeFilter === 'all' || activeFilter === sectionKey;
+
+      if (!sectionMatch) {
+        section.classList.add('hidden');
+        return;
+      }
+
+      let sectionHasVisible = false;
+      section.querySelectorAll('.card').forEach(card => {
+        const text = [
+          card.dataset.raw || '',
+          card.querySelector('.card-name')?.textContent || '',
+          card.querySelector('.card-desc')?.textContent || '',
+          card.dataset.desc || ''
+        ].join(' ').toLowerCase();
+
+        const show = !query || text.includes(query);
+        card.classList.toggle('card-filtered-out', !show);
+        if (show) sectionHasVisible = true;
+      });
+
+      section.classList.toggle('hidden', !sectionHasVisible);
+      if (sectionHasVisible) anyVisible = true;
+    });
+
+    document.getElementById('empty-state').style.display = anyVisible ? 'none' : 'block';
+  }
+
+  // ── STAGGER CARD ANIMATIONS ON LOAD ───────────────────────────
+  document.querySelectorAll('.card').forEach((card, i) => {
+    card.style.animationDelay = Math.min(i * 18, 400) + 'ms';
+  });
+</script>
+</body>
+</html>

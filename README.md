@@ -52,21 +52,3 @@ Full scope, deliverables, and judging criteria for each case are in `Structural_
 | Presentation                    |   30%  |
 | Result (Accuracy & Performance) |   40%  |
 | Solution Originality            |   30%  |
-
----
-
-# **Point of Contact**
-
-
-
----
-
-# **Goodie Bag**
-
-
-
----
-
-# **Prize**
-
-🏆 **ADB Safegate Branded Prize Packages**

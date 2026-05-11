@@ -40,3 +40,28 @@ Even an early, physics-grounded degradation indicator — one that does not yet 
 * **Quality of hypothesis formation** — does the team form clear, testable hypotheses that connect physical theory to observable signals, rather than fitting first and explaining afterwards?
 * **Methodological soundness without ground truth** — given no labels exist, what does the team do to make their analysis credible? Sensitivity checks, controlled comparisons across fixtures, and sanity tests all count here.
 * **Intellectual honesty and depth of gap analysis** — does the team clearly communicate what their indicator *cannot* tell, and does the gap analysis surface genuinely interesting limitations of the existing data rather than only the obvious ones?
+
+## Schema JSON
+ 
+```json
+[
+  {"name": "timestamp", "type": "TIMESTAMP", "mode": "NULLABLE"},
+  {"name": "batch_id", "type": "STRING", "mode": "NULLABLE"},
+  {"name": "event_id", "type": "STRING", "mode": "NULLABLE"},
+  {"name": "device_id", "type": "STRING", "mode": "NULLABLE"},
+  {"name": "location_id", "type": "STRING", "mode": "NULLABLE"},
+  {"name": "serial_number", "type": "STRING", "mode": "NULLABLE"},
+  {"name": "location_name", "type": "STRING", "mode": "NULLABLE"},
+  {"name": "tenant_id", "type": "STRING", "mode": "NULLABLE"},
+  {"name": "source_system", "type": "STRING", "mode": "NULLABLE"},
+  {"name": "asset_type", "type": "STRING", "mode": "NULLABLE"},
+  {"name": "metric", "type": "STRING", "mode": "NULLABLE"},
+  {"name": "numeric_value", "type": "FLOAT", "mode": "NULLABLE"},
+  {"name": "string_value", "type": "STRING", "mode": "NULLABLE"},
+  {"name": "year", "type": "INTEGER", "mode": "NULLABLE"},
+  {"name": "month", "type": "INTEGER", "mode": "NULLABLE"},
+  {"name": "day", "type": "INTEGER", "mode": "NULLABLE"},
+  {"name": "inserted_at", "type": "TIMESTAMP", "mode": "NULLABLE"},
+  {"name": "gateway_id", "type": "STRING", "mode": "NULLABLE"}
+]
+```

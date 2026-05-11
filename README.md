@@ -1,3 +1,5 @@
+**All data is available in the release page**
+
 # Code the Sky - ADB Safegate
 
 ADB Safegate Introduction and use case available in powerpoint presentation. Also some training material ... any questions ? Come see us at the booth !

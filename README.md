@@ -41,8 +41,11 @@ Full scope, deliverables, and judging criteria for each case are in `Structural_
 * **Case study datasets** — provided as CSV files in this repository, alongside metadata and schema references. Each case study has its own data folder; see the case-specific README for what's included and how it's structured.
 * **Case-specific READMEs** — detailed scope, deliverables, and judging criteria for each case.
 * **CORTEX Service** — our SaaS platform for predictive maintenance and the eventual deployment home for any algorithm coming out of this hackathon. Useful context when designing your solution, and essential for the optional commercial bonus track in Cases 1 and 3.
+
   Link: https://sandbox.adbsg-alis.com/webNg/map;map=Satellite;t=Assets;f=363479;loc=u151tfppk;z=14;w=maintenanceOverview
+
   Username: hackathon.users
+
   Password: 123@Welcome
   
 * **PowerPoint deck** — visual introduction to the three cases.
